@@ -4,8 +4,7 @@ TargetDir = getDirectory("Choose Destination Directory ");
 
 list = getFileList(SourceDir);
 
-//Applys Median FIlter to a stack of images in chosen directory and saves them in target directory, appeands an additional String called
-//AppendSaveName before saving the stack
+//Rotate images by 15 degrees till 360 degrees and save them
 
 for(i = 0; i < list.length; i++) {
 
@@ -14,11 +13,16 @@ for(i = 0; i < list.length; i++) {
 
      open(title);
      
-     AppendSaveName = 'MedianFilterR10';
-     run("Median...", "radius=10 stack");
+    
+     
+     for (j = 1; j < 24; j++) {
+     	 AppendSaveName = 'Original' + 'Rotation' + j * 15;
+     run("Rotate... ", "angle=15 * j grid=1 interpolation=None stack" );
    
      saveAs('.tiff', TargetDir+ AppendSaveName + list[i]);
 
+     }
      close();
+     
 	
 }
