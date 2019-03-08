@@ -1,0 +1,15 @@
+SourceDir = getDirectory("Choose Source Directory ");
+
+TargetDir = getDirectory("Choose Destination Directory ");
+
+list = getFileList(SourceDir);
+
+//Rotate images by 15 degrees till 360 degrees and save them
+
+for(i = 0; i < list.length; i++) {
+
+     IJ.run('16bit')
+     close();
+     
+	
+}
