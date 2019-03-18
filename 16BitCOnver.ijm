@@ -12,6 +12,7 @@ for(i = 0; i < list.length; i++) {
 
      open(title);
      run("16-bit"); 
+     saveAs('.tif', TargetDir + list[i]);
      close();
      
 	

@@ -6,6 +6,7 @@ list = getFileList(SourceDir);
 
 
 
+file = File.open("LocalizationRotatedBoring" + '.txt');
 for(i = 0; i < list.length; i++) {
 
      showProgress(i+1, list.length);
@@ -16,8 +17,7 @@ for(i = 0; i < list.length; i++) {
    
  
 if(endsWith(list[i], ".tif")){
-     savename = replace(title,".tif",""); 
-     file = File.open(savename + '.txt');
+     
      
      print(file, list[i] + "  , " + 5 + " ,"  + getHeight()/ 2 + ", " + getWidth()/ 2);
     
