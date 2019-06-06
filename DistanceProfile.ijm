@@ -9,8 +9,9 @@ Xcalibration = Dialog.getNumber();
 
 
 
-for (i = 1; i <= nImages; i++) {
-    selectImage(i);
+
+    id = getImageID();
+    selectImage(id);
     title = getTitle();
     height = getHeight();
     width = getWidth();
@@ -39,7 +40,7 @@ for (i = 1; i <= nImages; i++) {
    
  
     
-}
+
 
 function findBottomPeak(array) {
 	for (i = array.length - 1; i >= 0; i--)
