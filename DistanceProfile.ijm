@@ -31,7 +31,7 @@ choice = Dialog.getChoice()
 
 run("New... ", "name="+Titre+" type=Table");
 
-print(Titre, "[Time\tDistance]");
+print(Titre, "Time"+ "\t" +"Distance");
     
     for(i = 0; i < width; i++){
         for(j = 0; j < height; j++){
