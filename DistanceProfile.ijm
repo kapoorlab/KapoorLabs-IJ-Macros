@@ -1,17 +1,25 @@
 
+imageTitle = newArray(nImages);
+for(i = 1; i<=nImages;i++)
+
+{
+
+                selectImage(i);
+
+                imageTitle[i-1] = getTitle();
+
+}
 Dialog.create("Distance recorder");
 Dialog.addNumber("Pixel Size", 1);
-
-
+Dialog.addChoice("image to select", imageTitle, imageTitle[0]);
 
 Dialog.show();
+TargetDir = getDirectory("Choose Destination Directory ");
 Xcalibration = Dialog.getNumber();
+choice = Dialog.getChoice()
 
-
-
-
-    id = getImageID();
-    selectImage(id);
+    selectWindow(choice);
+   
     title = getTitle();
     height = getHeight();
     width = getWidth();
@@ -19,7 +27,12 @@ Xcalibration = Dialog.getNumber();
     Values = newArray(height);
     Xvalues = newArray(width);
     Yvalues = newArray(width);
+    Titre="[Distance_Over_Time]";
 
+run("New... ", "name="+Titre+" type=Table");
+
+print(Titre, "[Time\tDistance]");
+    
     for(i = 0; i < width; i++){
         for(j = 0; j < height; j++){
         	
@@ -30,12 +43,21 @@ Xcalibration = Dialog.getNumber();
                 if(dist > 0){
                 Xvalues[i] = i;
                 Yvalues[i] = dist;
+                Rez = ""+Xvalues[i]+"\t"+ Yvalues[i] ;
+                print(Titre, Rez) ;
                 }
         }
     }
-    
+ 
+
+                selectWindow("Distance_Over_Time");
+
+   saveAs("Text", TargetDir+File.separator+ choice + ".csv");
+
+
+   
   Plot.create("Distance over time", "T-location", "Distance", Xvalues, Yvalues);
- Plot.show();
+  Plot.show();
 
    
  
