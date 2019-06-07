@@ -27,11 +27,11 @@ choice = Dialog.getChoice()
     Values = newArray(height);
     Xvalues = newArray(width);
     Yvalues = newArray(width);
-    Titre="[Distance_Over_Time]";
+    Title="[Distance_Over_Time]";
 
-run("New... ", "name="+Titre+" type=Table");
+run("New... ", "name="+Title+" type=Table");
 
-print(Titre, "Time"+ "\t" +"Distance");
+print(Title, "Time"+ "\t" +"Distance");
     
     for(i = 0; i < width; i++){
         for(j = 0; j < height; j++){
@@ -43,8 +43,8 @@ print(Titre, "Time"+ "\t" +"Distance");
                 if(dist > 0){
                 Xvalues[i] = i;
                 Yvalues[i] = dist;
-                Rez = ""+Xvalues[i]+"\t"+ Yvalues[i] ;
-                print(Titre, Rez) ;
+                Results = ""+Xvalues[i]+"\t"+ Yvalues[i] ;
+                print(Title, Results) ;
                 }
         }
     }
