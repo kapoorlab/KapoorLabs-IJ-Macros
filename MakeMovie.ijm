@@ -13,7 +13,7 @@ for(i = 0; i < list.length; i++) {
      subdir = SourceDir + list[i];
      run("Image Sequence...", "open=subdir sort");
      title = getTitle();
-     saveAs('.tiff', TargetDir + title);
+     saveAs('.tiff', TargetDir + "MoreLuc" + i);
      close();
 
 	

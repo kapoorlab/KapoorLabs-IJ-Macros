@@ -15,7 +15,7 @@ for(i = 0; i < list.length; i++) {
      waitForUser('Click Ok after making HDF5 selections');
      run("Split Channels"); 
      AppendSaveName = 'Cloud'; 
-     selectWindow("C1-"+title + ": /exported_data"); 
+     selectWindow("C3-"+title + ": /exported_data"); 
      saveAs('.tiff', TargetDir+ AppendSaveName  + list[i]);
      for(j = 0; j < N_Classes; j++)
      close();
