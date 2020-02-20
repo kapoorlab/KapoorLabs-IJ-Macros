@@ -1,11 +1,10 @@
-frames = 180;
-Original = 'Movie2.tif';
-Division = 'ONETDivisionMovie2.tif';
-Apoptosis = 'ONETApoptosisMovie2.tif';
-NonMature = 'ONETNonMatureMovie2.tif';
-Mature = 'ONETMatureMovie2.tif';
-MacroKitty = 'ONETMacroKittyMovie2.tif'; 
-
+frames = 121;
+Original = 'TestA.tif';
+Division = 'ONETDivisionTestA.tif';
+Apoptosis = 'ONETApoptosisTestA.tif';
+NonMature = 'ONETNonMatureTestA.tif';
+Mature = 'ONETMatureTestA.tif';
+MacroKitty = 'ONETMacroKittyTestA.tif'; 
 
 for (i = 1; i <= nImages; i++) {
     selectImage(i);
@@ -14,8 +13,9 @@ for (i = 1; i <= nImages; i++) {
     
     
 }
+
 wait(1)
-run("Merge Channels...", "c2=ONETDivisionMovie2.tif c7=ONETApoptosisMovie2.tif c6=ONETNonMatureMovie2.tif c4=Movie2.tif c3=ONETMatureMovie2.tif c1=ONETMacroKittyMovie2.tif create keep");
+run("Merge Channels...", "c2=ONETDivisionTestA.tif c7=ONETApoptosisTestA.tif c6=ONETNonMatureTestA.tif c4=TestA.tif c3=ONETMatureTestA.tif c1=ONETMacroKittyTestA.tif create keep");
     run("RGB Color", "frames");
     selectWindow(MacroKitty);
     close();
