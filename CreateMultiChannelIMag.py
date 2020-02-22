@@ -4,7 +4,7 @@ import imagej
 import glob
 from ij import IJ
 from ij.plugin.frame import RoiManager
-
+from ij import WindowManager as wm
 
 def run():
     Ch0dir = '/Volumes/TRANSCEND/Claudia/LGR5SegmentationTraining/DeformOriginalCh0/'
@@ -25,4 +25,6 @@ def run():
       IJ.saveAs('.tif', DoubleChdir +  Name);
       imp.close();
       impCh1.close();
+      composite = wm.getFrontWindow()
+      if composite is not None: done = composite.close()
 run()
