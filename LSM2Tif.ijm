@@ -13,7 +13,8 @@ for(i = 0; i < list.length; i++) {
      if(filter(i, list[i])) {
      title = SourceDir + list[i];
      open(title);
-     
+     //run("Split Channels"); 
+     //selectWindow("C3-"+list[i]);
    
      saveAs('.tiff', TargetDir + list[i]);
      

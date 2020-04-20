@@ -7,9 +7,9 @@ from ij.plugin.frame import RoiManager
 from ij import WindowManager as wm
 
 def run():
-    Ch0dir = '/Volumes/TRANSCEND/Claudia/LGR5SegmentationTraining/DeformOriginalCh0/'
-    Ch1dir = '/Volumes/TRANSCEND/Claudia/LGR5SegmentationTraining/DeformOriginalCh1/'
-    DoubleChdir = '/Volumes/TRANSCEND/Claudia/LGR5SegmentationTraining/DeformDoubleChannelOriginal/'
+    Ch0dir = '/Volumes/TRANSCEND/Claudia/LGR5SegmentationTraining/DeformMask/'
+    Ch1dir = '/Volumes/TRANSCEND/Claudia/LGR5SegmentationTraining/DeformMask/'
+    DoubleChdir = '/Volumes/TRANSCEND/Claudia/LGR5SegmentationTraining/DeformDoubleChannelMask/'
     Raw_path = os.path.join(Ch0dir, '*tif')
     X = glob.glob(Raw_path)
     axes = 'YX'
