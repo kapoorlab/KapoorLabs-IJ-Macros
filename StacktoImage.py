@@ -1,20 +1,17 @@
-#@ File(label='Choose Roi directory', style='directory') roidir
-
-
 #@ File(label='Choose OriginalImage directory', style='directory') originaldir
 #@ String(label='File types', value='tif') file_type_image
 #@ String(label='Filter', value='._') filter_image
 #@ Boolean(label='Recursive search', value=True) do_recursive
-#@ File(label='Choose SaveMask directory', style='directory') maskdir
+#@ File(label='Choose Split directory', style='directory') splitdir
 
 import os
 from java.io import File
 
-from ij import IJ
+from ij import IJ, ImageStack, ImagePlus
 from ij.plugin.frame import RoiManager
 from ij import WindowManager as wm
 
-def batch_open_images(pathImage, pathRoi, pathMask, file_typeImage=None,  name_filterImage=None,  recursive=False):
+def batch_open_images(pathImage, pathSplit, file_typeImage=None,  name_filterImage=None,  recursive=False):
     '''Open all files in the given folder.
     :param path: The path from were to open the images. String and java.io.File are allowed.
     :param file_type: Only accept files with the given extension (default: None).
@@ -117,37 +114,33 @@ def batch_open_images(pathImage, pathRoi, pathMask, file_typeImage=None,  name_f
                         path_to_Image.append([full_path, os.path.basename(os.path.splitext(full_path)[0])])
     # Create the list that will be returned by this function.
     Images = []
-    Rois = []
     for img_path, file_name in path_to_Image:
         # IJ.openImage() returns an ImagePlus object or None.
         imp = IJ.openImage(img_path)
+        stack = imp.getStack()
+        
         print(img_path)
         if check_filter(file_name):
          continue;
         else: 
-         print(file_name  ,  pathRoi)
-         RoiName = str(pathRoi) + '/'+ file_name + '.roi'
-         Roi = IJ.open(RoiName)
-         # An object equals True and None equals False.
-         rm = RoiManager.getInstance()
-         if (rm==None):
-            rm = RoiManager()
-         rm.addRoi(Roi)
+
+            
+            for i in range(1, imp.getNSlices() + 1):
+                  slice = stack.getProcessor(i)
+                  TwoDstack =  ImageStack(imp.width, imp.height)
+                  TwoDstack.addSlice(str(i), slice.toFloat(0, None));
+                  TwoDimp = ImagePlus(str(i-1), TwoDstack)
+                  
+                  IJ.saveAs(TwoDimp, '.tif', str(pathSplit) + "/"  +  str(i-1));
+             
+            	
+                 
          
-         impMask = IJ.createImage("Mask", "8-bit grayscale-mode", imp.getWidth(), imp.getHeight(), imp.getNChannels(), imp.getNSlices(), imp.getNFrames())
-         IJ.setForegroundColor(255, 255, 255)
-         rm.runCommand(impMask,"Deselect")
-         rm.runCommand(impMask,"Fill")
-         rm.runCommand('Delete')
-         IJ.saveAs(impMask, '.tif', str(pathMask) + "/"  +  file_name);
-         imp.close();
-         rm.close();
 
          
-         #print(img_path, RoiName)
-         Images.append(imp)
-         Rois.append(Roi)    
-    return Images, Rois
+            #print(img_path, RoiName)
+            Images.append(imp)
+    return Images
 
 def split_string(input_string):
     '''Split a string to a list and strip it
@@ -160,7 +153,7 @@ def split_string(input_string):
 
 if __name__ in ['__builtin__','__main__']:
     # Run the batch_open_images() function using the Scripting Parameters.
-    images = batch_open_images(originaldir,roidir ,maskdir,
+    images = batch_open_images(originaldir ,splitdir,
                                split_string(file_type_image),
                              
                                split_string(filter_image),
