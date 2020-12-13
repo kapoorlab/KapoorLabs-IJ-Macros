@@ -17,8 +17,6 @@ cal = imp.getCalibration() # in microns
 
 img = IJF.wrap(imp)
 
-# Extract the red channel
-
 
 # Create a variable of the correct type (UnsignedByteType) for the value-extended view
 zero = img.randomAccess().get().createVariable()
