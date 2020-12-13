@@ -18,15 +18,15 @@ cal = imp.getCalibration() # in microns
 img = IJF.wrap(imp)
 
 # Extract the red channel
-red = Converters.argbChannel(img, 1)
+
 
 # Create a variable of the correct type (UnsignedByteType) for the value-extended view
-zero = red.randomAccess().get().createVariable()
+zero = img.randomAccess().get().createVariable()
 
 # Run the difference of Gaussian
 cell = 5.0 # microns in diameter
 min_peak = 40.0 # min intensity for a peak to be considered
-dog = DogDetection(Views.extendValue(red, zero), img,
+dog = DogDetection(Views.extendValue(img, zero), img,
                    [cal.pixelWidth, cal.pixelHeight, cal.pixelDepth],
                    cell / 2, cell,
                    DogDetection.ExtremaType.MINIMA,
