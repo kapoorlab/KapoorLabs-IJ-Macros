@@ -13,8 +13,7 @@ from java.awt import Color
 from ij.gui import PointRoi, OvalRoi , Overlay 
 from ij.plugin.frame import RoiManager
 from ij.gui import WaitForUserDialog, Toolbar
-# Fetch the "first-instar-brain.tif" file
-#imp = IJ.openImage("http://downloads.imagej.net/fiji/snapshots/samples/first-instar-brain.zip")
+
 #remove all the previous ROIS
 imp = IJ.getImage()
 rm = RoiManager.getInstance()
@@ -41,17 +40,17 @@ print(img.dimensions)
 zero = img.randomAccess().get().createVariable()
 
 # Run the difference of Gaussian
-cell = 50.0 # microns in diameter
-min_peak = 4.0 # min intensity for a peak to be considered
+cell = 30.0 # microns in diameter
+min_peak = 10.0 # min intensity for a peak to be considered
 dog = DogDetection(Views.extendValue(img, zero), img,
                    [cal.pixelWidth, cal.pixelHeight],
                    cell / 2, cell,
-                   DogDetection.ExtremaType.MINIMA,
+                   DogDetection.ExtremaType.MAXIMA, #MAXIMA
                    min_peak, False,
                    DoubleType())
 
 peaks = dog.getPeaks()
-roi = OvalRoi(0, 0, cell/2, cell/2)  
+roi = OvalRoi(0, 0, cell/cal.pixelWidth, cell/cal.pixelHeight)  
 print ('Number of cells = ', len(peaks))
 p = zeros(img.numDimensions(), 'i')  
 overlay = Overlay()
@@ -60,8 +59,7 @@ for peak in peaks:
   # Read peak coordinates into an array of integers  
   peak.localize(p)  
   if(boundRect.contains(p[0], p[1])):
-      oval = OvalRoi(p[0], p[1],cell/2, cell/2 )
+      oval = OvalRoi(p[0], p[1],cell/cal.pixelWidth, cell/cal.pixelHeight)
       oval.setColor(Color.RED)
       overlay.add(oval)  
-  
   
