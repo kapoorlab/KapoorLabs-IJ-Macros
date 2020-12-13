@@ -11,8 +11,26 @@ from net.imglib2.type.numeric.real import DoubleType
 from jarray import zeros  
 from java.awt import Color
 from ij.gui import PointRoi, OvalRoi , Overlay 
+from ij.plugin.frame import RoiManager
+from ij.gui import WaitForUserDialog, Toolbar
 # Fetch the "first-instar-brain.tif" file
 #imp = IJ.openImage("http://downloads.imagej.net/fiji/snapshots/samples/first-instar-brain.zip")
+#remove all the previous ROIS
+imp = IJ.getImage()
+rm = RoiManager.getInstance()
+if not rm:
+	rm = RoiManager()
+rm.runCommand("reset")
+
+#ask the user to define a selection and get the bounds of the selection
+IJ.setTool(Toolbar.RECTANGLE)
+WaitForUserDialog("Select the area,then click OK.").show();
+boundRect = imp.getRoi()
+imp.setRoi(boundRect)
+rm.addRoi(boundRect)
+
+
+
 imp = IJ.getImage()
 cal = imp.getCalibration() # in microns
 
@@ -41,8 +59,9 @@ imp.setOverlay(overlay)
 for peak in peaks:  
   # Read peak coordinates into an array of integers  
   peak.localize(p)  
-  oval = OvalRoi(p[0], p[1],cell/2, cell/2 )
-  oval.setColor(Color.RED)
-  overlay.add(oval)  
+  if(boundRect.contains(p[0], p[1])):
+      oval = OvalRoi(p[0], p[1],cell/2, cell/2 )
+      oval.setColor(Color.RED)
+      overlay.add(oval)  
   
   
