@@ -59,7 +59,7 @@ for peak in peaks:
   # Read peak coordinates into an array of integers  
   peak.localize(p)  
   if(boundRect.contains(p[0], p[1])):
-      oval = OvalRoi(p[0], p[1],cell/cal.pixelWidth, cell/cal.pixelHeight)
+      oval = OvalRoi(p[0], p[1],p[0] - cell/cal.pixelWidth, p[1] - cell/cal.pixelHeight)
       oval.setColor(Color.RED)
       overlay.add(oval)  
   
