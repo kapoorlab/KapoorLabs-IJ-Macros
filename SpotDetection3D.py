@@ -1,12 +1,26 @@
-#@ File(label='Choose Roi directory', style='directory') roidir
+# A script to find cells by difference of Gaussian using imglib2.
+# Uses as an example the "first-instar-brain.tif" RGB stack availalable
+#@ File(label='Choose Nuclei Roi directory', style='directory') Nucleiroidir
 
 
 #@ File(label='Choose OriginalImage directory', style='directory') originaldir
 #@ String(label='File types', value='tif') file_type_image
 #@ String(label='Filter', value='._') filter_image
 #@ Boolean(label='Recursive search', value=True) do_recursive
-#@ File(label='Choose SaveMask directory', style='directory') maskdir
+#@ File(label='Choose SaveSpotSegmentation directory', style='directory') SpotSegdir
 
+
+from ij import IJ
+from net.imglib2.img.display.imagej import ImageJFunctions as IJF
+from net.imglib2.view import Views
+from net.imglib2.converter import Converters
+from net.imglib2.algorithm.dog import DogDetection
+from net.imglib2.type.numeric.real import DoubleType
+from jarray import zeros  
+from java.awt import Color
+from ij.gui import PointRoi, OvalRoi , Overlay 
+from ij.plugin.frame import RoiManager
+from ij.gui import WaitForUserDialog, Toolbar
 import os
 from java.io import File
 
@@ -52,7 +66,35 @@ def batch_open_images(pathImage, pathRoi, pathMask, file_typeImage=None,  name_f
         else:
             return True
 
+    def dog_detection(overlay,img, imp, cal):
 
+                 # Create a variable of the correct type (UnsignedByteType) for the value-extended view
+				 zero = img.randomAccess().get().createVariable()
+				
+				 # Run the difference of Gaussian
+				 cell = 8.0 # microns in diameter
+				 min_peak = 2.0 # min intensity for a peak to be considered
+				 dog = DogDetection(Views.extendValue(img, zero), img,
+				                   [cal.pixelWidth, cal.pixelHeight,cal.pixelDepth],
+				                   cell / 2, cell,
+				                   DogDetection.ExtremaType.MINIMA, 
+				                   min_peak, False,
+				                   DoubleType())
+				
+				 peaks = dog.getPeaks()
+				 roi = OvalRoi(0, 0, cell/cal.pixelWidth, cell/cal.pixelHeight)  
+				 print ('Number of cells = ', len(peaks))
+			 	 p = zeros(img.numDimensions(), 'i')  
+			 	
+				 boundRect = imp.getRoi()
+				 for peak in peaks:  
+				    # Read peak coordinates into an array of integers  XYZ location of spots
+				    peak.localize(p)  
+				    print(p)
+				    if(boundRect is not None and boundRect.contains(p[0], p[1])):
+						    oval = OvalRoi(p[0], p[1],cell/cal.pixelWidth,  cell/cal.pixelHeight)
+						    oval.setColor(Color.RED)
+						    overlay.add(oval) 
 
     def check_filter(string):
         '''This function is used to check for a given filter.
@@ -121,6 +163,7 @@ def batch_open_images(pathImage, pathRoi, pathMask, file_typeImage=None,  name_f
     for img_path, file_name in path_to_Image:
         # IJ.openImage() returns an ImagePlus object or None.
         imp = IJ.openImage(img_path)
+        imp.show()
         print(img_path)
         if check_filter(file_name):
          continue;
@@ -130,6 +173,10 @@ def batch_open_images(pathImage, pathRoi, pathMask, file_typeImage=None,  name_f
         
         if os.path.exists(RoiName):
 		         Roi = IJ.open(RoiName)
+		         imp = IJ.getImage()
+		         cal= imp.getCalibration()# in microns
+		         img = IJF.wrap(imp)
+		         print('Image Dimensions', img.dimensions, 'Calibration', cal)
 		         print(Roi)
 		         # An object equals True and None equals False.
 		         rm = RoiManager.getInstance()
@@ -140,23 +187,16 @@ def batch_open_images(pathImage, pathRoi, pathMask, file_typeImage=None,  name_f
 		         except:
 		           pass  
 		         rm.runCommand("Open", RoiName)
-		         
-		         impMask = IJ.createImage("Mask", "8-bit grayscale-mode", imp.getWidth(), imp.getHeight(), imp.getNChannels(), imp.getNSlices(), imp.getNFrames())
-		         IJ.setForegroundColor(255, 255, 255)
-		         rm.runCommand(impMask,"Deselect")
-		         rm.runCommand(impMask,"Fill")
-		         rm.runCommand('Delete')
-		         IJ.saveAs(impMask, '.tif', str(pathMask) + "/"  +  file_name);
-		         imp.close();
-		         
-		
-		         
-		         #print(img_path, RoiName)
-		         Images.append(imp)
-		         Rois.append(Roi)    
-		
-    return Images, Rois
-
+		         rois = rm.getRoisAsArray()
+		         overlay = Overlay()
+				 for (i in range(0,len(rois))):
+					overlay.add(rois[i])
+				 setOverlay(imp, overlay)
+				 
+				 
+				 
+				 
+  
 def split_string(input_string):
     '''Split a string to a list and strip it
     :param input_string: A string that contains semicolons as separators.
@@ -168,13 +208,11 @@ def split_string(input_string):
 
 if __name__ in ['__builtin__','__main__']:
     # Run the batch_open_images() function using the Scripting Parameters.
-    images = batch_open_images(originaldir,roidir ,maskdir,
+    images = batch_open_images(originaldir,Nucleiroidir ,SpotSegdir,
                                split_string(file_type_image),
                              
                                split_string(filter_image),
                        
                                do_recursive
                               )
-    for image in images:
-        # Call the toString() method of each ImagePlus object.
-        print(image)
+
