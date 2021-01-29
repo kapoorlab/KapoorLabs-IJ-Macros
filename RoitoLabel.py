@@ -6,6 +6,7 @@
 #@ String(label='Filter', value='._') filter_image
 #@ Boolean(label='Recursive search', value=True) do_recursive
 #@ File(label='Choose SaveMask directory', style='directory') maskdir
+#@ File(label='Choose SaveLabelMask directory', style='directory') masklabeldir
 
 import os
 from java.io import File
@@ -15,7 +16,7 @@ from ij.plugin.frame import RoiManager
 from ij import WindowManager as wm
 
 
-def batch_open_images(pathImage, pathRoi, pathMask, file_typeImage=None,  name_filterImage=None,  recursive=False):
+def batch_open_images(pathImage, pathRoi, pathMask, pathLabelMask, file_typeImage=None,  name_filterImage=None,  recursive=False):
     '''Open all files in the given folder.
     :param path: The path from were to open the images. String and java.io.File are allowed.
     :param file_type: Only accept files with the given extension (default: None).
@@ -89,7 +90,6 @@ def batch_open_images(pathImage, pathRoi, pathMask, file_typeImage=None,  name_f
     path_to_Image = []
     # Replacing some abbreviations (e.g. $HOME on Linux).
     path = os.path.expanduser(pathImage)
-    path = os.path.expandvars(pathImage)
     # If we don't want a recursive search, we can use os.listdir().
     if not recursive:
         for file_name in os.listdir(pathImage):
@@ -122,6 +122,7 @@ def batch_open_images(pathImage, pathRoi, pathMask, file_typeImage=None,  name_f
     for img_path, file_name in path_to_Image:
         # IJ.openImage() returns an ImagePlus object or None.
         imp = IJ.openImage(img_path)
+        
         print(img_path)
         if check_filter(file_name):
          continue;
@@ -147,9 +148,18 @@ def batch_open_images(pathImage, pathRoi, pathMask, file_typeImage=None,  name_f
 		         rm.runCommand(impMask,"Deselect")
 		         rm.runCommand(impMask,"Fill")
 		         rm.runCommand('Delete')
-		         IJ.saveAs(impMask, '.tif', str(pathMask) + "/"  +  file_name);
-		         imp.close();
+		         impMask.show()
 		         
+		         IJ.saveAs(impMask, '.tif', str(pathMask) + "/"  +  file_name);
+		         try:
+		            IJ.run("Find Connected Regions", "allow_diagonal display_one_image display_results regions_for_values_over=100 minimum_number_of_points=1 stop_after=-1")
+		         except:
+		            pass
+		         IJ.saveAs("Tiff",str(pathLabelMask) + "/"  +  file_name);
+		         imp.close();
+		         impMask.close();
+		         
+		         IJ.run("Close");
 		
 		         
 		         #print(img_path, RoiName)
@@ -169,7 +179,7 @@ def split_string(input_string):
 
 if __name__ in ['__builtin__','__main__']:
     # Run the batch_open_images() function using the Scripting Parameters.
-    images = batch_open_images(originaldir,roidir ,maskdir,
+    images = batch_open_images(originaldir,roidir ,maskdir,masklabeldir,
                                split_string(file_type_image),
                              
                                split_string(filter_image),
