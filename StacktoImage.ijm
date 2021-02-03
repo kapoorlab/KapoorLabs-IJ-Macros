@@ -4,7 +4,7 @@ SourceDir = getDirectory("Choose Tif Source Directory ");
 TargetDir = getDirectory("Choose split Tif Destination Directory ");
 
 list = getFileList(SourceDir);
-
+print(list.length)
 for(i = 0; i < list.length; i++) {
 
      showProgress(i+1, list.length);
@@ -15,8 +15,9 @@ for(i = 0; i < list.length; i++) {
      run("Stack to Images");
    
      n = nImages();
+print(n);     
 for (j = 0; j < n; ++j){
- saveAs('.tiff', TargetDir +  list[i] + "Split" + j);
+ saveAs('.tiff', TargetDir +  list[i]  + j);
 close();	
 }
      }
