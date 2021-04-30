@@ -13,7 +13,7 @@ from java.awt import Color
 from ij.gui import PointRoi, OvalRoi , Overlay 
 from ij.plugin.frame import RoiManager
 from ij.gui import WaitForUserDialog, Toolbar
-
+from net.imglib2.view import Views
 #remove all the previous ROIS
 imp = IJ.getImage()
 rm = RoiManager.getInstance()
@@ -26,7 +26,7 @@ IJ.setTool(Toolbar.RECTANGLE)
 WaitForUserDialog("Select the area,then click OK.").show();
 boundRect = imp.getRoi()
 imp.setRoi(boundRect)
-rm.addRoi(boundRect)
+
 
 
 
@@ -35,31 +35,40 @@ cal = imp.getCalibration() # in microns
 
 img = IJF.wrap(imp)
 
-print(img.dimensions)
 # Create a variable of the correct type (UnsignedByteType) for the value-extended view
 zero = img.randomAccess().get().createVariable()
 
 # Run the difference of Gaussian
-cell = 30.0 # microns in diameter
-min_peak = 10.0 # min intensity for a peak to be considered
+cell = 4.0 # microns in diameter
+min_peak = 5.0 # min intensity for a peak to be considered
+WhiteBackground = True
+if WhiteBackground:
+   Type = DogDetection.ExtremaType.MAXIMA
+else:
+   Type = DogDetection.ExtremaType.MINIMA   
 dog = DogDetection(Views.extendValue(img, zero), img,
                    [cal.pixelWidth, cal.pixelHeight],
                    cell / 2, cell,
-                   DogDetection.ExtremaType.MAXIMA, #MAXIMA
+                   Type,
                    min_peak, False,
                    DoubleType())
 
 peaks = dog.getPeaks()
+
 roi = OvalRoi(0, 0, cell/cal.pixelWidth, cell/cal.pixelHeight)  
-print ('Number of cells = ', len(peaks))
+
 p = zeros(img.numDimensions(), 'i')  
 overlay = Overlay()
 imp.setOverlay(overlay)
+regionpeak = 0 
 for peak in peaks:  
+ 
   # Read peak coordinates into an array of integers  
   peak.localize(p)  
   if(boundRect.contains(p[0], p[1])):
-      oval = OvalRoi(p[0], p[1],cell/cal.pixelWidth,  cell/cal.pixelHeight)
+      oval = OvalRoi(p[0] - 0.5 * cell/cal.pixelWidth, p[1] - 0.5 * cell/cal.pixelHeight,cell/cal.pixelWidth,  cell/cal.pixelHeight)
       oval.setColor(Color.RED)
       overlay.add(oval)  
-  
+      regionpeak= regionpeak + 1
+      rm.addRoi(oval)
+print ('Number of hairs in region = ', regionpeak, 'Total hairs in the image = ', len(peaks))  
