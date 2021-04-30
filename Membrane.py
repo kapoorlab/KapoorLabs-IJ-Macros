@@ -59,7 +59,7 @@ skel = ops.run("thinMorphological", None, output_binary)
 output = ds.create(output_binary)
 output_skel = ds.create(skel)
 # call connected components to label each connected region
-for  d in range(0, output_skel.numDimensions()-1):
+
 labeling=ops.labeling().cca(output_skel, StructuringElement.EIGHT_CONNECTED)
 
 # get the index image (each object will have a unique gray level)
