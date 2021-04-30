@@ -127,7 +127,7 @@ def batch_open_images(pathImage, pathRoi, pathMask, file_typeImage=None,  name_f
          continue;
         else: 
          print(file_name  ,  pathRoi)
-        RoiName = str(pathRoi) + '/'+ file_name + '_rois' + '.zip'
+        RoiName = str(pathRoi) + '/'+ file_name  + '.roi'
         
         if os.path.exists(RoiName):
 		         Roi = IJ.open(RoiName)
@@ -141,7 +141,7 @@ def batch_open_images(pathImage, pathRoi, pathMask, file_typeImage=None,  name_f
 		         except:
 		           pass  
 		         rm.runCommand("Open", RoiName)
-		         
+		         rm.runCommand("Add")
 		         impMask = IJ.createImage("Mask", "8-bit grayscale-mode", imp.getWidth(), imp.getHeight(), imp.getNChannels(), imp.getNSlices(), imp.getNFrames())
 		         IJ.setForegroundColor(255, 255, 255)
 		         rm.runCommand(impMask,"Deselect")
