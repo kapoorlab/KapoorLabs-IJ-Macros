@@ -1,4 +1,7 @@
-
+#@ Float(label="Size(um)", required=true, value=4, stepSize=0.1) cell
+#@ Float(label="Min intensity peak", required=true, value=5, stepSize=0.5) min_peak
+#@ Boolean(label='Find Maxima', value=True) WhiteBackground
+# Varun n Claudia 3D spot detection macro 
 from ij import IJ
 from net.imglib2.img.display.imagej import ImageJFunctions as IJF
 from net.imglib2.view import Views
@@ -31,10 +34,8 @@ cal = imp.getCalibration() # in microns
 img = IJF.wrap(imp)
 
 zero = img.randomAccess().get().createVariable()
+print(cell)
 
-cell = 4.0 # microns in diameter
-min_peak = 5.0 # min intensity for a peak to be considered
-WhiteBackground = True
 if WhiteBackground:
    Type = DogDetection.ExtremaType.MAXIMA
 else:
