@@ -39,7 +39,7 @@ if WhiteBackground:
    Type = DogDetection.ExtremaType.MINIMA
 else:
    Type = DogDetection.ExtremaType.MAXIMA   
-dog = DogDetection(Views.extendValue(img, zero), img,
+dog = DogDetection(Views.extendMirrorSingle(img), img,
                    [cal.pixelWidth, cal.pixelHeight, cal.pixelDepth],
                    cell / 2, cell,
                    Type,
