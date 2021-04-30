@@ -3,6 +3,7 @@
 #@ Float(label="Sigma 2 (pixel)", required=true, value=1.25, stepSize=0.1) sigma2
 #@ Integer(label="Min Size (pixel)", required=true, value=2, stepSize=1) size
 #@OUTPUT Dataset output
+#@OUTPUT Dataset output_skel
 #@ OpService ops
 #@ DatasetService ds
  
@@ -53,23 +54,19 @@ shape = HyperSphereShape(size)
 
 output_binary = ops.run("convert.bit", clipped)
 output_binary = ops.morphology().erode(output_binary, [shape])
+skel = ops.run("thinMorphological", None, output_binary)
 
 output = ds.create(output_binary)
+output_skel = ds.create(skel)
 # call connected components to label each connected region
-labeling=ops.labeling().cca(output_binary, StructuringElement.EIGHT_CONNECTED)
+for  d in range(0, output_skel.numDimensions()-1):
+labeling=ops.labeling().cca(output_skel, StructuringElement.EIGHT_CONNECTED)
 
 # get the index image (each object will have a unique gray level)
 labelingIndex=labeling.getIndexImg()
 IJF.show(labelingIndex)
 # get the collection of regions and loop through them
 regions=LabelRegions(labeling)
-for region in regions:
-	# get the size of the region
-	size=region.size()
 
-	# get the intensity by "sampling" the intensity of the input image at the region pixels
-	intensity=ops.stats().mean(Regions.sample(region, converted)).getRealDouble()
-
-	print "size",size,"intensity",intensity
     
    
