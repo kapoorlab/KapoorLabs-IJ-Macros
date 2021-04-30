@@ -32,19 +32,27 @@ imp = IJ.getImage()
 cal = imp.getCalibration() # in microns
 
 img = IJF.wrap(imp)
-
+print(img.numDimensions())
 zero = img.randomAccess().get().createVariable()
 
 if WhiteBackground:
    Type = DogDetection.ExtremaType.MINIMA
 else:
-   Type = DogDetection.ExtremaType.MAXIMA   
-dog = DogDetection(Views.extendMirrorSingle(img), img,
-                   [cal.pixelWidth, cal.pixelHeight, cal.pixelDepth],
-                   cell / 2, cell,
-                   Type,
-                   min_peak, False,
-                   DoubleType())
+   Type = DogDetection.ExtremaType.MAXIMA  
+if img.numDimensions() == 3:    
+		dog = DogDetection(Views.extendMirrorSingle(img), img,
+		                   [cal.pixelWidth, cal.pixelHeight, cal.pixelDepth],
+		                   cell / 2, cell,
+		                   Type,
+		                   min_peak, False,
+		                   DoubleType())
+elif img.numDimensions() == 2:  
+       dog = DogDetection(Views.extendMirrorSingle(img), img,
+		                   [cal.pixelWidth, cal.pixelHeight],
+		                   cell / 2, cell,
+		                   Type,
+		                   min_peak, False,
+		                   DoubleType())		                   
 
 peaks = dog.getPeaks()
 
