@@ -34,12 +34,11 @@ cal = imp.getCalibration() # in microns
 img = IJF.wrap(imp)
 
 zero = img.randomAccess().get().createVariable()
-print(cell)
 
 if WhiteBackground:
-   Type = DogDetection.ExtremaType.MAXIMA
+   Type = DogDetection.ExtremaType.MINIMA
 else:
-   Type = DogDetection.ExtremaType.MINIMA   
+   Type = DogDetection.ExtremaType.MAXIMA   
 dog = DogDetection(Views.extendValue(img, zero), img,
                    [cal.pixelWidth, cal.pixelHeight, cal.pixelDepth],
                    cell / 2, cell,
