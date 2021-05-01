@@ -88,7 +88,7 @@ output_skel = ds.create(skel)
 
 copy_output_skel = output_skel.copy()
 invert_copy_output_skel = copy_output_skel.copy()
-copy_output_skel = ops.morphology().dilate(copy_output_skel, HyperSphereShape(1))
+copy_output_skel = ops.morphology().dilate(copy_output_skel, HyperSphereShape(3))
 
 inversetargetCursor = copy_output_skel.localizingCursor()
 outputinversetargetRan = invert_copy_output_skel.randomAccess()
@@ -105,7 +105,6 @@ while inversetargetCursor.hasNext():
      
     
 
-IJF.show(invert_copy_output_skel)
 
 # call connected components to label each connected region
 labeling=ops.labeling().cca(invert_copy_output_skel, StructuringElement.EIGHT_CONNECTED)
