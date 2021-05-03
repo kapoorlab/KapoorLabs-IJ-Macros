@@ -12,10 +12,13 @@ min = zeros(image.numDimensions(),'l')
 max = zeros(image.numDimensions(),'l')
 min[image.numDimensions()-1] = 0
 max[image.numDimensions()-1] =  image.dimension( image.numDimensions()-1 ) - 1
-for  d in range(0, image.numDimensions()-1):
+min[image.numDimensions()-2] = 0
+max[image.numDimensions()-2] =  image.dimension( image.numDimensions()-2 ) - 1
+for  d in range(0, image.numDimensions()-2):
             
             min[ d ] =  - 10 ;
             max[ d ] = image.dimension( d ) + 10 ;
+            
 interval = FinalInterval( min, max );        
 print(interval)
 infinite = Views.extendZero( image );

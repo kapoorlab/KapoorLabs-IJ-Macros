@@ -13,7 +13,7 @@
 #@ UIService ui
 # Run a HWatershed filter on all the frames along the TIME axis.
 # After the filtering step the image is clipped to match the input type.
-# Varun n Claudia Membrane segmentation macro 
+# Varun n Claudia H Watershed segmentation macro 
 from net.imagej.axis import Axes
 from net.imglib2.algorithm.labeling.ConnectedComponents import StructuringElement
 from net.imglib2.roi.labeling import LabelRegions
