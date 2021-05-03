@@ -58,15 +58,8 @@ ops.convert().imageType(clipped, dog, clip_op)
 
 targetCursor = clipped.localizingCursor()
 
- 
-# Iterate over each pixels of the datasets
-while targetCursor.hasNext():
-    targetCursor.fwd()
- 
-    if targetCursor.get().get() < 0:
-        targetCursor.get().set(0) 
-    else:
-        targetCursor.get().set(1) 
+clipped = ops.threshold().otsu(clipped) 
+
            
 
 shape = HyperSphereShape(size)        
