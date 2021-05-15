@@ -49,6 +49,8 @@ if detector.process():
         oval.setPosition(int(round(peak.getDoublePosition(2) / cal.pixelDepth))+1)
         roi.setPosition(int(round(peak.getDoublePosition(2) / cal.pixelDepth))+1)
         overlay.add(oval)
+        imp.setOverlay(overlay);
+        imp.updateAndDraw();
         rm.addRoi(oval)
         rm.addRoi(roi)
 	    
