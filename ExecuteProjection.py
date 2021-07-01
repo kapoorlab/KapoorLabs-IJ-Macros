@@ -1,5 +1,7 @@
 #@ Dataset input_img
 #@ OpService ops
+#@ DatasetIOService dio
+#@ LocationService ls
 #@ ConvertService convertService
 #@ DatasetService ds
 #@ DisplayService display
@@ -118,9 +120,12 @@ def batch_open_images(pathImage,file_typeImage, name_filterImage=None ):
      for img_path, file_name in path_to_Image:
 
          image =  IJ.openImage(img_path)
-       
+        
          dataset = ds.create(ImageJFunctions.convertFloat(image))
-         Images.append(dataset)
+         axes = [Axes.X, Axes.Y, Axes.Z, Axes.TIME, Axes.CHANNEL]
+         dataImg = ds.create(ImgPlus(dataset.getImgPlus().copy(), file_name, axes))
+         
+         Images.append(dataImg)
         
      return Images       
 
@@ -170,5 +175,7 @@ if __name__ in ['__builtin__','__main__']:
             
             local_proj = lzp_op.calculate( img )
             local_proj_output = ds.create( local_proj )
-            display.createDisplay( local_proj_output )
-			#IJ.saveAs(local_proj_output, '.tif', str(savedir) + "/"  +  img.getName());        
+            
+            location = ls.resolve(str(savedir) + '/' +  img.getName() + '.tif')
+            dio.save(local_proj_output, location)
+                    
