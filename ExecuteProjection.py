@@ -1,18 +1,27 @@
 #@ Dataset input_img
 #@ OpService ops
+#@ ConvertService convertService
 #@ DatasetService ds
 #@ DisplayService display
 #@ File(label='Choose OriginalImage directory', style='directory') originaldir
-#@ String(label='File types', value='TIF') file_type_image
+#@ String(label='File types', value='tif') file_type_image
 #@ File(label='Choose SaveImage directory', style='directory') savedir
-
+#@ String(label='Filter', value='._') filter_image
 from net.imagej import Dataset
 from fr.pasteur.iah.localzprojector.process import LocalZProjectionOp
 from fr.pasteur.iah.localzprojector.process import ReferenceSurfaceParameters
 from fr.pasteur.iah.localzprojector.process.ReferenceSurfaceParameters import Method
 from fr.pasteur.iah.localzprojector.process import ExtractSurfaceParameters
 from fr.pasteur.iah.localzprojector.process.ExtractSurfaceParameters import ProjectionMethod
-
+from java.io import File
+import os
+from net.imagej import ImgPlus
+from  net.imglib2.img import ImagePlusAdapter
+from net.imagej.axis import Axes
+from ij import IJ;
+import ij.ImagePlus;
+import net.imagej.Dataset;
+import net.imagej.ImageJ;
 #Macro to do local Z projection @Jean Yvez Tinnevez, Varun Kapoor, Cyrill Kana
 
 #------------------
@@ -56,12 +65,47 @@ params_proj = ExtractSurfaceParameters.create() \
 lzp_op = ops.op( LocalZProjectionOp, Dataset, params_ref_surface, params_proj )
 
 
-
-def batch_open_images(pathImage, split_string(file_type_image)):
+def split_string(input_string):
+    '''Split a string to a list and strip it
+    :param input_string: A string that contains semicolons as separators.
+    '''
+    string_splitted = input_string.split(';')
+    # Remove whitespace at the beginning and end of each string
+    strings_striped = [string.strip() for string in string_splitted]
+    return strings_striped
+def batch_open_images(pathImage,file_typeImage, name_filterImage=None ):
 
      if isinstance(pathImage, File):
         pathImage = pathImage.getAbsolutePath()
 
+        
+     def check_filter(string):
+        '''This function is used to check for a given filter.
+        It is possible to use a single string or a list/tuple of strings as filter.
+        This function can access the variables of the surrounding function.
+        :param string: The filename to perform the filtering on.
+        '''
+        if name_filterImage:
+            # The first branch is used if name_filter is a list or a tuple.
+            if isinstance(name_filterImage, (list, tuple)):
+                for name_filter_ in name_filterImage:
+                    if name_filter_ in string:
+                        # Exit the function with True.
+                        
+                        return True
+                    else:
+                        # Next iteration of the for loop.
+                        continue
+            # The second branch is used if name_filter is a string.
+            elif isinstance(name_filterImage, string):
+                if name_filterImage in string:
+                    return True
+                else:
+                    return False
+            return False
+        else:
+        # Accept all files if name_filter is None.
+            return True
      def check_type(string):
         '''This function is used to check the file type.
         It is possible to use a single string or a list/tuple of strings as filter.
@@ -88,22 +132,42 @@ def batch_open_images(pathImage, split_string(file_type_image)):
         # Accept all files if file_type is None.
         else:
             return True
-
+     # We collect all files to open in a list.
+     path_to_Image = []
+     # Replacing some abbreviations (e.g. $HOME on Linux).
+     path = os.path.expanduser(pathImage)
+     path = os.path.expandvars(pathImage)
+     # If we don't want a recursive search, we can use os.listdir().
+     
+     for directory, dir_names, file_names in os.walk(pathImage):
+            # We are only interested in files.
+            for file_name in file_names:
+                # The list contains only the file names.
+                # The full path needs to be reconstructed.
+                full_path = os.path.join(directory, file_name)
+                # Both checks are performed to filter the files.
+                if check_type(file_name):
+                    if check_filter(file_name) is False:
+                        # Add the file to the list of images to open.
+                        path_to_Image.append([full_path, os.path.basename(os.path.splitext(full_path)[0])])
      Images = []
-    
+     axes = [Axes.Z, Axes.Y, Axes.X]
      for img_path, file_name in path_to_Image:
-         imp = IJ.openImage(img_path)
-         Images.append(imp)
+
+         image =  IJ.openImage(img_path)
+       
         
-    return Images       
+         Images.append(ImagePlusAdapter.wrap( image ))
+        
+     return Images       
 
 if __name__ in ['__builtin__','__main__']:
 
      # Put the images to process in a list.
-     images_to_process, file_names = batch_open_images(originaldir, file_typeImage)
+     images_to_process = batch_open_images(originaldir,split_string(file_type_image), split_string(filter_image) )
      # Loop over each image.
      for img in images_to_process:
-
+            
 			# Execute local Z projection.
 			local_proj = lzp_op.calculate( img )
 		
@@ -111,4 +175,4 @@ if __name__ in ['__builtin__','__main__']:
 			local_proj_output = ds.create( local_proj )
 			local_proj_output.setName( 'LocalProjOf_' + img.getName() )
 			#display.createDisplay( local_proj_output )
-            IJ.saveAs(local_proj_output, '.tif', str(savedir) + "/"  +  local_proj_output.getName());        
+			IJ.saveAs(local_proj_output, '.tif', str(savedir) + "/"  +  local_proj_output.getName());        
