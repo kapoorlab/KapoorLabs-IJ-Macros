@@ -51,7 +51,7 @@ if detector.process():
         overlay.add(oval)
         imp.setOverlay(overlay);
         imp.updateAndDraw();
-        rm.addRoi(oval)
+        
         rm.addRoi(roi)
 	    
    
