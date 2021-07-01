@@ -165,14 +165,15 @@ if __name__ in ['__builtin__','__main__']:
 	 # Create op, specifying only input type and the two parameters.
 	 lzp_op = ops.op( LocalZProjectionOp, Dataset, params_ref_surface, params_proj )
 	 images_to_process = batch_open_images(originaldir,split_string(file_type_image), split_string(filter_image) )
+	 print('Images to project',len(images_to_process))
 	 for img in images_to_process:
             
 			# Execute local Z projection.
-			
-			local_proj = lzp_op.calculate( img )
 		
+			local_proj = lzp_op.calculate( img )
+		     
 			# Display results.
 			local_proj_output = ds.create( local_proj )
 			
 			display.createDisplay( local_proj_output )
-			IJ.saveAs(local_proj_output, '.tif', str(savedir) + "/"  +  img.getName());        
+			#IJ.saveAs(local_proj_output, '.tif', str(savedir) + "/"  +  img.getName());        
