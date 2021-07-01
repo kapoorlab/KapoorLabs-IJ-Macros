@@ -114,7 +114,7 @@ def batch_open_images(pathImage,file_typeImage, name_filterImage=None ):
                         # Add the file to the list of images to open.
                         path_to_Image.append([full_path, os.path.basename(os.path.splitext(full_path)[0])])
      Images = []
-     axes = [Axes.Z, Axes.Y, Axes.X]
+     
      for img_path, file_name in path_to_Image:
 
          image =  IJ.openImage(img_path)
@@ -168,12 +168,7 @@ if __name__ in ['__builtin__','__main__']:
 	 print('Images to project',len(images_to_process))
 	 for img in images_to_process:
             
-			# Execute local Z projection.
-		
-			local_proj = lzp_op.calculate( img )
-		     
-			# Display results.
-			local_proj_output = ds.create( local_proj )
-			
-			display.createDisplay( local_proj_output )
+            local_proj = lzp_op.calculate( img )
+            local_proj_output = ds.create( local_proj )
+            display.createDisplay( local_proj_output )
 			#IJ.saveAs(local_proj_output, '.tif', str(savedir) + "/"  +  img.getName());        
