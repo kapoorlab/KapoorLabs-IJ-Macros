@@ -22,47 +22,10 @@ from ij import IJ;
 import ij.ImagePlus;
 import net.imagej.Dataset;
 import net.imagej.ImageJ;
+from net.imglib2.img.display.imagej import ImageJFunctions;
 #Macro to do local Z projection @Jean Yvez Tinnevez, Varun Kapoor, Cyrill Kana
 
-#------------------
-# Parameters.
-#------------------
 
-
-# What channel to use to create the reference surface?
-channel = 0
-
-# Reference surface parameters.
-#params_ref_surface = ReferenceSurfaceParameters.deserialize( param_file_1 )
-params_ref_surface = ReferenceSurfaceParameters.create() \
-				.method( Method.MAX_OF_STD ) \
-				.zMin( 0 ) \
-				.zMax( 100000 ) \
-				.filterWindowSize( 21 ) \
-				.binning( 4 ) \
-				.gaussianPreFilter( 0.1 ) \
-				.medianPostFilterHalfSize( 20 ) \
-				.targetChannel( channel ) \
-				.get()
-
-# Local projection parameters.
-params_proj = ExtractSurfaceParameters.create() \
-				.zOffset( 0, 0 ) \
-				.zOffset( 1, +8 ) \
-				.deltaZ( 0, 3 ) \
-				.deltaZ( 1, 3 ) \
-				.projectionMethod( 0, ProjectionMethod.MIP ) \
-				.projectionMethod( 1, ProjectionMethod.MIP ) \
-				.get()
-
-
-
-#------------------
-# Execute.
-#------------------
-
-# Create op, specifying only input type and the two parameters.
-lzp_op = ops.op( LocalZProjectionOp, Dataset, params_ref_surface, params_proj )
 
 
 def split_string(input_string):
@@ -156,23 +119,60 @@ def batch_open_images(pathImage,file_typeImage, name_filterImage=None ):
 
          image =  IJ.openImage(img_path)
        
-        
-         Images.append(ImagePlusAdapter.wrap( image ))
+         dataset = ds.create(ImageJFunctions.convertFloat(image))
+         Images.append(dataset)
         
      return Images       
 
 if __name__ in ['__builtin__','__main__']:
-
-     # Put the images to process in a list.
-     images_to_process = batch_open_images(originaldir,split_string(file_type_image), split_string(filter_image) )
-     # Loop over each image.
-     for img in images_to_process:
+     #------------------
+	 # Parameters.
+	 #------------------
+	
+	
+	 # What channel to use to create the reference surface?
+	 channel = 0
+	
+	 # Reference surface parameters.
+	 #params_ref_surface = ReferenceSurfaceParameters.deserialize( param_file_1 )
+	 params_ref_surface = ReferenceSurfaceParameters.create() \
+					.method( Method.MAX_OF_STD ) \
+					.zMin( 0 ) \
+					.zMax( 100000 ) \
+					.filterWindowSize( 21 ) \
+					.binning( 4 ) \
+					.gaussianPreFilter( 0.1 ) \
+					.medianPostFilterHalfSize( 20 ) \
+					.targetChannel( channel ) \
+					.get()
+	
+	 # Local projection parameters.
+	 params_proj = ExtractSurfaceParameters.create() \
+      					.zOffset( 0, 0 ) \
+					.zOffset( 1, +8 ) \
+					.deltaZ( 0, 3 ) \
+					.deltaZ( 1, 3 ) \
+					.projectionMethod( 0, ProjectionMethod.MIP ) \
+					.projectionMethod( 1, ProjectionMethod.MIP ) \
+					.get()
+	
+	
+	
+	 #------------------
+	 # Execute.
+	 #------------------
+	
+	 # Create op, specifying only input type and the two parameters.
+	 lzp_op = ops.op( LocalZProjectionOp, Dataset, params_ref_surface, params_proj )
+	 images_to_process = batch_open_images(originaldir,split_string(file_type_image), split_string(filter_image) )
+	 for img in images_to_process:
             
 			# Execute local Z projection.
+			
 			local_proj = lzp_op.calculate( img )
 		
 			# Display results.
 			local_proj_output = ds.create( local_proj )
-			local_proj_output.setName( 'LocalProjOf_' + img.getName() )
-			#display.createDisplay( local_proj_output )
-			IJ.saveAs(local_proj_output, '.tif', str(savedir) + "/"  +  local_proj_output.getName());        
+			
+			display.createDisplay( local_proj_output )
+			IJ.saveAs(local_proj_output, '.tif', str(savedir) + "/"  +  img.getName());        
