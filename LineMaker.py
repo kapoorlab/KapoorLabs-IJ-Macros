@@ -10,6 +10,7 @@ from ij.gui import PointRoi, OvalRoi , Overlay
 from ij.plugin.frame import RoiManager
 from ij.gui import WaitForUserDialog, Toolbar
 from net.imglib2.view import Views
+from ij.gui import GenericDialog
 
 imp = IJ.getImage()
 IJ.run("Select None")
@@ -29,11 +30,10 @@ rm = RoiManager.getInstance()
 if not rm:
 	rm = RoiManager()
 rm.runCommand("reset")
-WaitForUserDialog("Select the landmark.").show();
+WaitForUserDialog("Select the landmark and the second point.").show();
 rm.runCommand("Add");
 
-WaitForUserDialog("Select second point.").show();
-rm.runCommand("Add");
+
 
 roi_points = rm.getRoisAsArray()
 
@@ -47,4 +47,12 @@ print('Start Landmark',xpoints[0], ypoints[0])
 print('End Landmark',xpoints[1], ypoints[1])
 
 IJ.makeLine(xpoints[0], ypoints[0],xpoints[1], ypoints[1])
+gui = GenericDialog("Rotation Angle")
+gui.addNumericField("ChooseAngle", 15, 0)
+gui.showDialog() 
+if gui.wasOKed():
+    
+    rotateangle = gui.getNextNumber()
+    print(rotateangle)
+    IJ.run("Rotate...", "angle="+str(int(float(rotateangle))));
    
