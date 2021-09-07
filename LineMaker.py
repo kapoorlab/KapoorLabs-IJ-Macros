@@ -123,7 +123,7 @@ def batch_open_images(pathImage,file_typeImage, name_filterImage=None ):
 
             imp =  IJ.openImage(img_path)
             maskimage = ops.run("create.img", imp)
-            cursor = empty.localizingCursor()
+            cursor = maskimage.localizingCursor()
             imp.show()
             IJ.run("Select None")
             overlay = imp.getOverlay()
@@ -217,12 +217,27 @@ def batch_open_images(pathImage,file_typeImage, name_filterImage=None ):
                             X = cursor.getDoublePosition(0)
                             Y = cursor.getDoublePosition(1)
                             if abs(Y - slope * X - intercept) <= 4:
-                                   cursor.get().set(1)
-                                    
-            display.createDisplay( maskimage )
+                                   cursor.get().set(0)
+                            else:
+                                   cursor.get().set(1)       
+            labeling=ops.labeling().cca(maskimage, StructuringElement.EIGHT_CONNECTED)
+
+            # get the index image (each object will have a unique gray level)
+            labelingIndex=labeling.getIndexImg()
+
+            # get the collection of regions and loop through them
+            regions=LabelRegions(labeling)
+            for region in regions:
+                # get the size of the region
+                size=region.size()
+
+                
+
+                print "size",size   
+
+            display.createDisplay( labelingIndex )
             
-            dataset = ds.create(IJF.convertFloat(maskimage))
-            display.createDisplay( dataset )
+            
             
             WaitForUserDialog("hold").show();
 
