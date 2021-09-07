@@ -15,7 +15,8 @@ from ij.plugin.frame import RoiManager
 from ij.gui import WaitForUserDialog, Toolbar
 from net.imglib2.view import Views
 from ij.gui import GenericDialog
-
+from java.io import File
+import os
 
 def split_string(input_string):
     '''Split a string to a list and strip it
@@ -107,97 +108,89 @@ def batch_open_images(pathImage,file_typeImage, name_filterImage=None ):
      for img_path, file_name in path_to_Image:
 
             imp =  IJ.openImage(img_path)
-			IJ.run("Select None")
-			overlay = imp.getOverlay()
-			if overlay == None:
-			
-							overlay = Overlay();
-							imp.setOverlay(overlay);
-			
-						
-			else:
-							overlay.clear();
-			
-			imp.updateAndDraw()
-			impY = imp.getHeight()
-			impX = imp.getWidth()
-			print(impY, impX)
-			rm = RoiManager.getInstance()
-			if not rm:
-				rm = RoiManager()
-			rm.runCommand("reset")
-			WaitForUserDialog("Select the landmark and the second point.").show();
-			rm.runCommand("Add");
-			
-			
-			
-			roi_points = rm.getRoisAsArray()
-			
-			for Roi in roi_points:
-			        
-			        xpoints = Roi.getPolygon().xpoints
-			        ypoints = Roi.getPolygon().ypoints
-			        print(xpoints, ypoints)
-			print('Start Landmark',xpoints[0], ypoints[0])
-			fixedpointX = xpoints[0]
-			fixedpointY = ypoints[0]
-			print('End Landmark',xpoints[1], ypoints[1])
-			
-			IJ.makeLine(xpoints[0], ypoints[0],xpoints[1], ypoints[1])
-			gui = GenericDialog("Rotation Angle")
-			gui.addNumericField("ChooseAngle", 15, 0)
-			gui.showDialog() 
-			if gui.wasOKed():
-			    
-			    rotateangle = gui.getNextNumber()
-			    print(rotateangle)
-			    IJ.run("Rotate...", "angle="+str(int(float(rotateangle))));
-			rm.runCommand("reset")
-			overlay = imp.getOverlay()  
-			rm.runCommand("Add");  
-			roi_points = rm.getRoisAsArray()
-			
-			for Roi in roi_points:
-			        xpoints = Roi.getPolygon().xpoints
-			        ypoints = Roi.getPolygon().ypoints
-			        print(xpoints, ypoints)
-			
-			print('Rotated Start Landmark',xpoints[0], ypoints[0])
-			
-			print('Rotated End Landmark',xpoints[1], ypoints[1])        
-			slope = (ypoints[1] - ypoints[0])/ (xpoints[1] - xpoints[0] + 1.0E-20)   
-			intercept = fixedpointY - slope * fixedpointX
-			print(fixedpointX, fixedpointY)
-			print('Slope', slope, 'Intercept', intercept)
-			XwY0 = -intercept/slope
-			YxwY0 = slope * XwY0 + intercept
-			
-			XwYmax = (impY -intercept)/slope
-			YxwYmax = slope * XwYmax + intercept
-			
-			
-			YwX0 = intercept
-			XywX0 = (YwX0 - intercept)/slope
-			
-			YwXmax = impX * slope + intercept
-			XxwXmax = (YwXmax - intercept)/slope
-			
-			#rm.runCommand("reset")
-			
-			
-			  
-			rm.runCommand("Add");
-			if XwY0 > 0:
-					lineROIA = Line(fixedpointX, fixedpointY,XwY0, YxwY0)
-					lineROIB = Line(fixedpointX, fixedpointY,XwYmax, YxwYmax)
-					overlay.add(lineROIA)
-					overlay.add(lineROIB) 
-			if XwY0 < 0:
-					lineROIA = Line(fixedpointX, fixedpointY,XywX0, YwX0)
-					lineROIB = Line(fixedpointX, fixedpointY,XxwXmax, YwXmax)
-					overlay.add(lineROIA)
-					overlay.add(lineROIB)		
-			
-			#IJ.makeLine(fixedpointX, fixedpointY,0, YwX0)
-			  
-			
+            imp.show()
+            IJ.run("Select None")
+            overlay = imp.getOverlay()
+            if overlay == None:
+
+                overlay = Overlay()
+                imp.setOverlay(overlay)
+            else:
+            
+               overlay.clear();
+
+            imp.updateAndDraw()
+            impY = imp.getHeight()
+            impX = imp.getWidth()
+            print(impY, impX)
+            rm = RoiManager.getInstance()
+            if not rm:
+                rm = RoiManager()
+
+            rm.runCommand("reset")
+            WaitForUserDialog("Select the landmark and the second point").show();
+            rm.runCommand("Add");
+            roi_points = rm.getRoisAsArray()
+            for Roi in roi_points:
+                    
+                    xpoints = Roi.getPolygon().xpoints
+                    ypoints = Roi.getPolygon().ypoints
+                    print(xpoints, ypoints)
+
+            print('Start Landmark', xpoints[0], ypoints[0])
+            fixedpointX = xpoints[0]
+            fixedpointY = ypoints[0]
+            print('End Landmark', xpoints[1], ypoints[1])
+            IJ.makeLine(xpoints[0], ypoints[0], xpoints[1], ypoints[1])
+            gui = GenericDialog("Rotation Angle")
+            gui.addNumericField("Choose Angle", 15, 0)
+            gui.showDialog();
+            if gui.wasOKed():
+                
+                rotateangle = gui.getNextNumber()
+                print(rotateangle)
+                IJ.run("Rotate...", "angle="+str(int(float(rotateangle))));
+
+            rm.runCommand("reset")
+            overlay = imp.getOverlay()
+            rm.runCommand("Add")
+            roi_points = rm.getRoisAsArray()
+            
+            for Roi in roi_points:
+                     xpoints = Roi.getPolygon().xpoints
+                     ypoints = Roi.getPolygon().ypoints
+                     print(xpoints, ypoints)
+            
+            print('Rotated Start Landmark',xpoints[0], ypoints[0])
+            print('Rotated End Landmark',xpoints[1], ypoints[1])
+            slope = (ypoints[1] - ypoints[0])/ (xpoints[1] - xpoints[0] + 1.0E-20)
+            intercept = fixedpointY - slope * fixedpointX
+            print(fixedpointX, fixedpointY)
+            print('Slope', slope, 'Intercept', intercept)
+            XwY0 = -intercept/slope
+            YxwY0 = slope * XwY0 + intercept
+
+            XwYmax = (impY -intercept)/slope
+            YxwYmax = slope * XwYmax + intercept
+
+            YwX0 = intercept
+            XywX0 = (YwX0 - intercept)/slope
+            YwXmax = impX * slope + intercept
+            XxwXmax = (YwXmax - intercept)/slope
+            #rm.runCommand("reset")
+            rm.runCommand("Add");
+            if XwY0 > 0:
+                    lineROIA = Line(fixedpointX, fixedpointY,XwY0, YxwY0)
+                    lineROIB = Line(fixedpointX, fixedpointY,XwYmax, YxwYmax)
+                    overlay.add(lineROIA)
+                    overlay.add(lineROIB) 
+            if XwY0 < 0:
+                    lineROIA = Line(fixedpointX, fixedpointY,XywX0, YwX0)
+                    lineROIB = Line(fixedpointX, fixedpointY,XxwXmax, YwXmax)
+                    overlay.add(lineROIA)
+                    overlay.add(lineROIB)
+
+            
+if __name__ in ['__builtin__','__main__']:             
+      
+       batch_open_images(originaldir,split_string(file_type_image), split_string(filter_image) )
