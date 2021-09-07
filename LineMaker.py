@@ -5,6 +5,8 @@
 #@ OpService ops
 #@ DatasetService ds
 #@ DisplayService display
+#@ DatasetIOService dio
+#@ LocationService ls
 from ij import IJ
 from net.imglib2.img.display.imagej import ImageJFunctions as IJF
 from net.imglib2.view import Views
@@ -31,6 +33,9 @@ import os
 
 from net.imagej.axis import Axes
 from net.imagej import ImgPlus
+
+
+#Cutting hinges with optional rotation of manual drawn lines and saving of the cut regions as a label image in a directory of user choice @V Kapoor, Dalmiro 
 
 def split_string(input_string):
     '''Split a string to a list and strip it
@@ -224,22 +229,10 @@ def batch_open_images(pathImage,file_typeImage, name_filterImage=None ):
 
             # get the index image (each object will have a unique gray level)
             labelingIndex=labeling.getIndexImg()
-
-            # get the collection of regions and loop through them
-            regions=LabelRegions(labeling)
-            for region in regions:
-                # get the size of the region
-                size=region.size()
-
-                
-
-                print "size",size   
-
-            display.createDisplay( labelingIndex )
-            
-            
-            
-            WaitForUserDialog("hold").show();
+            dataImg = ds.create(labelingIndex)
+            location = ls.resolve(str(savedir) + '/' +  file_name + '.' + file_type_image)
+            dio.save(dataImg, location)
+            imp.close()
 
             
             
