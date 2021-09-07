@@ -2,6 +2,9 @@
 #@ String(label='File types', value='tif') file_type_image
 #@ File(label='Choose SaveImage directory', style='directory') savedir
 #@ String(label='Filter', value='._') filter_image
+#@ OpService ops
+#@ DatasetService ds
+#@ DisplayService display
 from ij import IJ
 from net.imglib2.img.display.imagej import ImageJFunctions as IJF
 from net.imglib2.view import Views
@@ -16,7 +19,18 @@ from ij.gui import WaitForUserDialog, Toolbar
 from net.imglib2.view import Views
 from ij.gui import GenericDialog
 from java.io import File
+from net.imagej.axis import Axes
+from net.imglib2.algorithm.labeling.ConnectedComponents import StructuringElement
+from net.imglib2.roi.labeling import LabelRegions
+
+from net.imglib2.roi import Regions
+from net.imglib2.algorithm.neighborhood import HyperSphereShape
+from net.imagej.axis import CalibratedAxis
+from net.imglib2.view import Views
 import os
+
+from net.imagej.axis import Axes
+from net.imagej import ImgPlus
 
 def split_string(input_string):
     '''Split a string to a list and strip it
@@ -108,6 +122,8 @@ def batch_open_images(pathImage,file_typeImage, name_filterImage=None ):
      for img_path, file_name in path_to_Image:
 
             imp =  IJ.openImage(img_path)
+            maskimage = ops.run("create.img", imp)
+            cursor = empty.localizingCursor()
             imp.show()
             IJ.run("Select None")
             overlay = imp.getOverlay()
@@ -148,7 +164,6 @@ def batch_open_images(pathImage,file_typeImage, name_filterImage=None ):
             if gui.wasOKed():
                 
                 rotateangle = gui.getNextNumber()
-                print(rotateangle)
                 IJ.run("Rotate...", "angle="+str(int(float(rotateangle))));
 
             rm.runCommand("reset")
@@ -177,19 +192,41 @@ def batch_open_images(pathImage,file_typeImage, name_filterImage=None ):
             XywX0 = (YwX0 - intercept)/slope
             YwXmax = impX * slope + intercept
             XxwXmax = (YwXmax - intercept)/slope
-            #rm.runCommand("reset")
-            rm.runCommand("Add");
+            rm.runCommand("reset")
+            
             if XwY0 > 0:
                     lineROIA = Line(fixedpointX, fixedpointY,XwY0, YxwY0)
                     lineROIB = Line(fixedpointX, fixedpointY,XwYmax, YxwYmax)
                     overlay.add(lineROIA)
-                    overlay.add(lineROIB) 
+                    
+                    overlay.add(lineROIB)
+                    
+                    
+                         
+                    
+                     
             if XwY0 < 0:
                     lineROIA = Line(fixedpointX, fixedpointY,XywX0, YwX0)
                     lineROIB = Line(fixedpointX, fixedpointY,XxwXmax, YwXmax)
                     overlay.add(lineROIA)
+                    
                     overlay.add(lineROIB)
 
+            while cursor.hasNext():
+                            cursor.fwd()
+                            X = cursor.getDoublePosition(0)
+                            Y = cursor.getDoublePosition(1)
+                            if abs(Y - slope * X - intercept) <= 4:
+                                   cursor.get().set(1)
+                                    
+            display.createDisplay( maskimage )
+            
+            dataset = ds.create(IJF.convertFloat(maskimage))
+            display.createDisplay( dataset )
+            
+            WaitForUserDialog("hold").show();
+
+            
             
 if __name__ in ['__builtin__','__main__']:             
       
