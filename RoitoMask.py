@@ -133,16 +133,26 @@ def batch_open_images(pathImage, pathRoi, pathMask, file_typeImage=None,  name_f
 						if (rm==None):
 							rm = RoiManager()
 						
+						
+
+						
 						rm.runCommand("Open", RoiName)
 						rm.runCommand("Add")
 						impMask = IJ.createImage("Mask", "8-bit grayscale-mode", imp.getWidth(), imp.getHeight(), imp.getNChannels(), imp.getNSlices(), imp.getNFrames())
 						IJ.setForegroundColor(255, 255, 255)
 						rm.runCommand(impMask,"Deselect")
 						rm.runCommand(impMask,"Fill")
-						rm.runCommand('Delete')
+						
+						rm.runCommand(("Delete"))
 						IJ.saveAs(impMask, '.tif', str(pathMask) + "/"  +  file_name);
 						imp.close();
-				RoiName = str(pathRoi) + '/'+ file_name  + '.zip'
+				
+
+	for img_path, file_name in path_to_Image:
+				print(img_path)
+				# IJ.openImage() returns an ImagePlus object or None.
+				imp = IJ.openImage(img_path)
+				RoiName = str(pathRoi) + '/' + file_name  + '.zip'
 				
 				if os.path.exists(RoiName):
 						Roi = IJ.open(RoiName)
@@ -153,19 +163,24 @@ def batch_open_images(pathImage, pathRoi, pathMask, file_typeImage=None,  name_f
 							rm = RoiManager()
 						
 						rm.runCommand("Open", RoiName)
-						rm.runCommand("Add")
+
+						# loop through the ROI Manager
+						n = rm.runCommand('count');
+						for i in range(0,n):
+							rm.runCommand('select', i);
+
+							# process roi here
+							print (Roi.getName());
+						
+							rm.runCommand("Add")
 						impMask = IJ.createImage("Mask", "8-bit grayscale-mode", imp.getWidth(), imp.getHeight(), imp.getNChannels(), imp.getNSlices(), imp.getNFrames())
 						IJ.setForegroundColor(255, 255, 255)
 						rm.runCommand(impMask,"Deselect")
 						rm.runCommand(impMask,"Fill")
-						rm.runCommand('Delete')
+						
+						rm.runCommand(("Delete"))
 						IJ.saveAs(impMask, '.tif', str(pathMask) + "/"  +  file_name);
 						imp.close(); 
-				 
-        Images.append(imp)
-        Rois.append(Roi)    
-		
-	return Images, Rois
 
 def split_string(input_string):
 	'''Split a string to a list and strip it
@@ -178,13 +193,11 @@ def split_string(input_string):
 
 if __name__ in ['__builtin__','__main__']:
 	# Run the batch_open_images() function using the Scripting Parameters.
-	images = batch_open_images(originaldir,roidir ,maskdir,
+	batch_open_images(originaldir,roidir ,maskdir,
 							   split_string(file_type_image),
 							 
 							   split_string(filter_image),
 					   
 							   do_recursive
 							  )
-	for image in images:
-		# Call the toString() method of each ImagePlus object.
-		print(image)
+
