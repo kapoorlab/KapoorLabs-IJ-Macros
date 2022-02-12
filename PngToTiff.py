@@ -1,3 +1,4 @@
+import os
 
 import glob
 from ij import IJ
@@ -9,7 +10,7 @@ from ij.plugin import ImageCalculator
 
 SourceDir = '/Users/rando/Downloads/NLM-MontgomeryCXRSet/MontgomerySet/CXR_png'
 
-savedir = '/Users/rando/Downloads/NLM-MontgomeryCXRSet/MontgomerySet/ManualMask/ManualMask/'
+savedir = '/Users/rando/Downloads/NLM-MontgomeryCXRSet/MontgomerySet/ManualMask/Raw/'
 
 
 
