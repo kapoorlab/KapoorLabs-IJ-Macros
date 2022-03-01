@@ -130,18 +130,18 @@ def batch_open_images(pathImage, pathSplit, file_typeImage=None,  name_filterIma
                         path_to_Image.append([full_path, os.path.basename(os.path.splitext(full_path)[0])])
     
     for img_path, file_name in path_to_Image:
-             if IJ.escapePressed():
-                 break;
+             
              image =  IJ.openImage(img_path)
              dataset = ds.create(ImageJFunctions.convertFloat(image))
              axes = [Axes.X, Axes.Y,Axes.CHANNEL,Axes.TIME]
              dataImg = ds.create(ImgPlus(dataset.getImgPlus().copy(), file_name, axes))
              ndim = dataImg.numDimensions()
-             for d in range(ndim):
-               image_d  =  Views.hyperSlice(dataImg, dataImg.numDimensions() - 1, d);
+             
+             for d in range(dataImg.dimension(2)):
+               image_d  =  Views.hyperSlice(dataImg, dataImg.numDimensions() - 2, d);
                
                image_d = ds.create(image_d)
-               location = ls.resolve(str(splitdir) + '/' +  file_name + '_' + str(d) + '.tif')
+               location = ls.resolve(str(splitdir) + '/' +  file_name + '_ch_' + str(d) + '.tif')
                print(image_d.dimension(0), image_d.dimension(1), image_d.dimension(2) )
                dio.save(image_d, location)
 
