@@ -137,14 +137,14 @@ def batch_open_images(pathImage, pathSplit, file_typeImage=None,  name_filterIma
              dataImg = ds.create(ImgPlus(dataset.getImgPlus().copy(), file_name, axes))
              ndim = dataImg.numDimensions()
              
-             for d in range(dataImg.dimension(2)):
+             for d in range(dataImg.dimension(2) + 1):
                image_d  =  Views.hyperSlice(dataImg, dataImg.numDimensions() - 2, d);
                
                image_d = ds.create(image_d)
                location = ls.resolve(str(splitdir) + '/' +  file_name + '_ch_' + str(d) + '.tif')
                print(image_d.dimension(0), image_d.dimension(1), image_d.dimension(2) )
                dio.save(image_d, location)
-
+               
    
 
 def split_string(input_string):
