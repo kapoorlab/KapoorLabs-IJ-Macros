@@ -128,8 +128,7 @@ def batch_open_images(pathImage, pathSplit, file_typeImage=None,  name_filterIma
                     if check_filter(file_name) is False:
                         # Add the file to the list of images to open.
                         path_to_Image.append([full_path, os.path.basename(os.path.splitext(full_path)[0])])
-    # Create the list that will be returned by this function.
-    Images = []
+    
     for img_path, file_name in path_to_Image:
              if IJ.escapePressed():
                  break;
